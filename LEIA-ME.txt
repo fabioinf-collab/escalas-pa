@@ -1,0 +1,9 @@
+SISTEMA DE ESCALAS OPERACIONAIS PA - versão para iPhone, Android e computador
+
+1) Hospede esta pasta inteira em um endereço https (por exemplo, Netlify ou GitHub Pages).
+2) No iPhone, abra o endereço no Safari, toque em Compartilhar e em "Adicionar à Tela de Início".
+3) Abra sempre pelo ícone "Escalas PA" da Tela de Início.
+
+Os dados ficam guardados no próprio aparelho. Use "Exportar dados" com frequência
+para guardar um backup em Arquivos, iCloud Drive ou enviar a outro aparelho.
+"Importar dados" carrega um backup e substitui os dados atuais.
