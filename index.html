@@ -51,7 +51,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 a{color:inherit;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:2px}
 
-.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+.app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
+main{min-width:0}
 aside{background:var(--side);color:var(--side-ink);position:sticky;top:env(safe-area-inset-top,0px);height:100vh;display:flex;flex-direction:column}
 .faixa{height:8px;background:repeating-linear-gradient(-45deg,var(--accent) 0 10px,#000 10px 20px);flex:none}
 .side-corpo{padding:24px 16px;display:flex;flex-direction:column;gap:26px;flex:1;min-height:0;overflow:auto}
@@ -216,7 +217,32 @@ td input[type=text],td select{padding:6px 8px}
 #bk-info{flex-basis:100%;font-size:12px;color:var(--side-muted)}
 #bk-info.atrasado{color:var(--accent);font-weight:600}
 
+.registro{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
+.registro:last-child{border-bottom:none;padding-bottom:0}
+.registro:first-of-type{padding-top:4px}
+.registro small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.reg-tipo{display:inline-block;font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;background:#111;color:var(--accent);padding:1px 7px;border-radius:3px;margin-right:8px;vertical-align:1px}
+.registro.falta .reg-tipo{background:var(--danger-soft);color:var(--danger)}
+.pessoa-btn.falta{background:var(--surface-2);border-style:dashed}
+.pessoa-btn.falta b{text-decoration:line-through;color:var(--muted)}
+.pessoa-btn.falta small{color:var(--danger);font-weight:600}
+.pessoa-btn.permutado small{color:var(--ink);font-weight:600}
+.voltar{margin-bottom:14px}
+details.varios summary{cursor:pointer;font-size:13.5px;font-weight:600;color:var(--muted)}
+details.varios summary:hover{color:var(--ink)}
+.campo .check{font-weight:400;color:var(--ink);font-size:14.5px}
+.campo .check small{font-weight:400}
+
 /* Quadrinhos */
+.link-det{background:none;border:none;padding:0;font:inherit;font-size:13px;font-weight:700;color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:3px;cursor:pointer;text-align:left}
+.rank-nome .link-det{display:inline-block;margin-top:4px}
+.rank-det{padding:4px 16px 16px 70px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+.rank-det:last-child{border-bottom:none}
+.rank-det p{margin:6px 0 10px;font-size:13.5px;color:var(--muted)}
+.rank-det table{min-width:640px;font-size:14px}
+.rank-det th{background:#3A3D40}
+.rank-det tr.nao-conta td{color:var(--muted)}
+.rank-det td.qt{text-align:right;font-weight:700}
 .rank{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
 .rank-item{display:grid;grid-template-columns:56px minmax(0,1.4fr) minmax(0,2fr) 110px;gap:14px;align-items:center;padding:10px 14px 10px 0;border-bottom:1px solid var(--line)}
 .rank-item:last-child{border-bottom:none}
@@ -235,6 +261,7 @@ td input[type=text],td select{padding:6px 8px}
   .rank-item{grid-template-columns:44px 1fr auto;row-gap:6px}
   .rank-item .barra{grid-column:2 / 4;grid-row:2}
   .rank-pos{grid-row:1 / 3;font-size:22px}
+  .rank-det{padding-left:16px}
 }
 
 /* Diálogos */
@@ -341,12 +368,23 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
     <!-- MILITARES -->
     <section class="view" id="v-militares">
       <h1>Militares</h1>
-      <p class="intro">Cadastre quem pode ser escalado e as qualificações de cada um. Só entram numa escala os militares com a qualificação exigida pela atividade.</p>
+      <p class="intro">Cadastre quem pode ser escalado, com graduação, nome de guerra e qualificações. Em todo o sistema o militar aparece pela graduação e pelo nome de guerra; o nome completo fica só para consulta nesta aba. Só entram numa escala os militares com a qualificação exigida pela atividade.</p>
       <div class="painel">
         <div class="grade g2">
-          <label class="campo">Nomes (um por linha para cadastrar vários)
-            <textarea id="mil-nomes" rows="3" placeholder="Ex.: Sd Silva"></textarea>
-          </label>
+          <div class="grade" style="align-content:start">
+            <label class="campo">Nome completo
+              <input type="text" id="mil-nome" maxlength="100" placeholder="Ex.: João Gabriel da Silva">
+            </label>
+            <label class="campo">Nome de guerra
+              <input type="text" id="mil-guerra" maxlength="40" placeholder="Ex.: Silva">
+            </label>
+            <details class="varios">
+              <summary>Cadastrar vários de uma vez</summary>
+              <label class="campo" style="margin-top:8px">Um militar por linha: nome completo; nome de guerra
+                <textarea id="mil-nomes" rows="4" placeholder="João Gabriel da Silva; Silva&#10;Pedro Henrique Costa; Costa"></textarea>
+              </label>
+            </details>
+          </div>
           <div class="grade" style="align-content:start">
             <div class="grade g2">
               <label class="campo">Setor
@@ -473,6 +511,40 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
       <div id="conf-area"></div>
     </section>
 
+    <!-- PERMUTA / FALTA -->
+    <section class="view" id="v-permuta"><div id="permuta-area"></div></section>
+    <section class="view" id="v-falta"><div id="falta-area"></div></section>
+
+    <!-- LASTROS -->
+    <section class="view" id="v-lastros">
+      <button class="btn peq voltar" id="ls-voltar">← Voltar para Quadrinhos</button>
+      <h1>Lançar lastros</h1>
+      <p class="intro">Adiciona quadrinhos a um militar, além dos que ele já tem pelas escalas. Os lastros entram na aba Quadrinhos, na ordem de sugestão das permutas e no rodízio das próximas escalas.</p>
+      <div class="painel">
+        <div class="grade g2">
+          <label class="campo">Militar
+            <select id="ls-mil"></select>
+          </label>
+          <label class="campo">Quadrinhos a adicionar
+            <input type="number" id="ls-qtd" min="1" max="999" value="1">
+          </label>
+          <div id="ls-info" class="req" style="grid-column:1/-1;margin-top:0"></div>
+          <label class="campo">Data de referência
+            <input type="date" id="ls-data">
+          </label>
+          <label class="campo" style="grid-column:1/-1">Justificativa
+            <textarea id="ls-just" rows="3" maxlength="500" placeholder="Ex.: Serviços tirados antes da implantação do sistema."></textarea>
+          </label>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">
+          <button class="btn" id="ls-cancelar">Voltar</button>
+          <button class="btn amarelo" id="ls-salvar">Salvar lastro</button>
+        </div>
+      </div>
+      <h2 style="margin-top:8px">Lastros lançados</h2>
+      <div id="lista-lastros"></div>
+    </section>
+
     <!-- PUBLICADAS -->
     <section class="view" id="v-publicadas">
       <h1>Escalas publicadas</h1>
@@ -484,11 +556,11 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
     <!-- QUADRINHOS -->
     <section class="view" id="v-quadrinhos">
       <h1>Quadrinhos</h1>
-      <p class="intro">Quantos serviços cada militar já tirou nas escalas publicadas, do mais escalado para o menos escalado.</p>
+      <p class="intro">Total de quadrinhos de cada militar, somando todas as atividades e os lastros, do mais escalado para o menos escalado. Use “Detalhar” para ver cada serviço.</p>
       <div class="painel">
         <div class="grade g4">
-          <label class="campo" style="grid-column:span 2">Atividade operacional
-            <select id="qd-atividade"></select>
+          <label class="campo" style="grid-column:span 2">Buscar militar
+            <input type="search" id="qd-busca" placeholder="Nome de guerra ou nome completo">
           </label>
           <label class="campo">De
             <input type="date" id="qd-de">
@@ -502,13 +574,11 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
           <label class="campo">Graduação
             <select id="qd-grad"><option value="">Todas</option><option value="CB">CB</option><option value="S1">S1</option><option value="S2">S2</option></select>
           </label>
-          <label class="campo" style="grid-column:span 2">Buscar militar
-            <input type="search" id="qd-busca" placeholder="Nome">
-          </label>
+
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px">
-          <label class="check"><input type="checkbox" id="qd-zeros" checked><span>Incluir militares aptos sem nenhum quadrinho</span></label>
-          <button class="btn" id="qd-csv">Exportar planilha</button>
+          <label class="check"><input type="checkbox" id="qd-zeros" checked><span>Incluir militares ativos sem nenhum quadrinho</span></label>
+          <div class="acoes"><button class="btn" id="qd-csv">Exportar planilha</button><button class="btn pri" id="qd-lastro">Lançar lastros</button></div>
         </div>
       </div>
       <div id="qd-resumo" class="req" style="margin:0 0 12px"></div>
@@ -571,7 +641,7 @@ const ATIVIDADES = [
 ];
 const LS_KEY = "escalas-servico-v1";
 
-let S = { setores: [], pessoas: [], indisp: [], escalas: [], priorizar: false };
+let S = { setores: [], pessoas: [], indisp: [], escalas: [], lastros: [], priorizar: false };
 let origem = "local";
 let db = null, downloads = null, somenteLeitura = false;
 let rascunho = null;
@@ -615,13 +685,21 @@ function vagasTxt(p){
   if(!p.vagasGrad) return String(p.vagas);
   return GRADS.filter(g => p.vagasGrad[g]).map(g => `${p.vagasGrad[g]} ${g}`).join(", ") || "0";
 }
-const nomeGrad = p => (p.grad ? p.grad + " " : "") + p.nome;
+const nomeExib = p => (p.guerra && p.guerra.trim()) || p.nome;
+const nomeGrad = p => (p.grad ? p.grad + " " : "") + nomeExib(p);
+const cmpNome = (a, b) => nomeExib(a).localeCompare(nomeExib(b), "pt-BR");
+const casaBusca = (p, b) => !b || p.nome.toLowerCase().includes(b) || (p.guerra || "").toLowerCase().includes(b);
+// falta só vale se o militar ainda ocupa aquela vaga
+const faltouVaga = (e, data, v, pid) => !!pid && (e.faltas || []).some(f => f.data === data && f.vaga === v && f.pessoaId === pid);
+// percorre os serviços que contam quadrinho (ignora faltas)
+function servicosDe(e, cb){ e.dias.forEach(d => d.pessoas.forEach((pid, v) => { if(pid && !faltouVaga(e, d.data, v, pid)) cb(pid, d.data, v); })); }
+const ultimaPermuta = (e, data, v, pid) => (e.permutas || []).filter(x => x.data === data && x.vaga === v && x.entrou === pid).pop() || null;
 
 /* ---------- persistência ---------- */
 function carregarLocal(){
   try{
     const raw = localStorage.getItem(LS_KEY);
-    if(raw){ const d = JSON.parse(raw); S = Object.assign({ setores:[], pessoas:[], indisp:[], escalas:[], priorizar:false }, d.S || {}); origem = d.origem || "local"; }
+    if(raw){ const d = JSON.parse(raw); S = Object.assign({ setores:[], pessoas:[], indisp:[], escalas:[], lastros:[], priorizar:false }, d.S || {}); origem = d.origem || "local"; }
   }catch(e){}
 }
 function salvarLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({ S, origem })); }catch(e){} }
@@ -639,7 +717,7 @@ function criaEscritor(caminho, dados){
     rodando = false;
   };
 }
-let escreverCadastro = null, escreverIndisp = null;
+let escreverCadastro = null, escreverIndisp = null, escreverLastros = null;
 function tratarErroEscrita(e){
   const code = e && e.code;
   if(code === "invalid_argument"){ somenteLeitura = true; toast("Você só tem acesso de leitura: as alterações não foram salvas."); }
@@ -648,6 +726,7 @@ function tratarErroEscrita(e){
 }
 function salvarCadastro(){ salvarLocal(); if(db && escreverCadastro) escreverCadastro(); }
 function salvarIndisp(){ salvarLocal(); if(db && escreverIndisp) escreverIndisp(); }
+function salvarLastros(){ salvarLocal(); if(db && escreverLastros) escreverLastros(); }
 async function gravarEscala(e){
   salvarLocal();
   if(db){ try{ await db.collection("escalas").doc(e.id).set(clone(e)); return true; }catch(err){ tratarErroEscrita(err); return false; } }
@@ -666,7 +745,8 @@ async function iniciarNuvem(){
   const eraLocal = origem === "local";
   escreverCadastro = criaEscritor("app/cadastro", () => ({ setores: S.setores, pessoas: S.pessoas, priorizar: !!S.priorizar }));
   escreverIndisp = criaEscritor("app/indisp", () => ({ items: S.indisp }));
-  const primeira = { cad:true, ind:true, esc:true };
+  escreverLastros = criaEscritor("app/lastros", () => ({ items: S.lastros || [] }));
+  const primeira = { cad:true, ind:true, esc:true, las:true };
   const erroSub = () => { const st = $("#status"); st.classList.remove("nuvem"); st.querySelector("span").textContent = "Sem conexão com os dados compartilhados"; };
 
   db.doc("app/cadastro").onSnapshot(snap => {
@@ -680,6 +760,12 @@ async function iniciarNuvem(){
     else if(primeira.ind && eraLocal && S.indisp.length){ escreverIndisp(); }
     else if(!eraLocal){ S.indisp = []; }
     primeira.ind = false; marcarNuvem(); renderTudo();
+  }, erroSub);
+  db.doc("app/lastros").onSnapshot(snap => {
+    if(snap.exists){ S.lastros = clone(snap.data().items || []); }
+    else if(primeira.las && eraLocal && (S.lastros || []).length){ escreverLastros(); }
+    else if(!eraLocal){ S.lastros = []; }
+    primeira.las = false; marcarNuvem(); renderTudo();
   }, erroSub);
   db.collection("escalas").onSnapshot(q => {
     if(primeira.esc && q.empty && eraLocal && S.escalas.length){
@@ -742,24 +828,26 @@ function normalizarNiveis(){
 }
 function contagemHistorico(){
   const c = {};
-  S.escalas.forEach(e => e.dias.forEach(d => d.pessoas.forEach(id => { if(id) c[id] = (c[id] || 0) + 1; })));
+  S.escalas.forEach(e => servicosDe(e, id => { c[id] = (c[id] || 0) + 1; }));
+  (S.lastros || []).forEach(l => { c[l.pessoaId] = (c[l.pessoaId] || 0) + l.qtd; });
   return c;
 }
 function optionsMilitares(sel){
   return S.setores.slice().sort((a,b) => a.nivel - b.nivel || a.nome.localeCompare(b.nome, "pt-BR")).map(s => {
-    const ps = S.pessoas.filter(p => p.setorId === s.id && p.ativo !== false).sort((a,b) => a.nome.localeCompare(b.nome, "pt-BR"));
+    const ps = S.pessoas.filter(p => p.setorId === s.id && p.ativo !== false).sort(cmpNome);
     if(!ps.length) return "";
-    return `<optgroup label="${esc(s.nome)}">${ps.map(p => `<option value="${p.id}" ${p.id === sel ? "selected" : ""}>${p.grad ? p.grad + " " : ""}${esc(p.nome)}</option>`).join("")}</optgroup>`;
+    return `<optgroup label="${esc(s.nome)}">${ps.map(p => `<option value="${p.id}" ${p.id === sel ? "selected" : ""}>${esc(nomeGrad(p))}</option>`).join("")}</optgroup>`;
   }).join("");
 }
 const qualsHtml = (sel, nome) => QUALS.map(q => `<label><input type="checkbox" value="${q}" ${sel.includes(q) ? "checked" : ""} ${nome ? `aria-label="${q} de ${esc(nome)}"` : ""}><span>${q}</span></label>`).join("");
 
 /* ---------- navegação ---------- */
-const VIEWS = ["setores","militares","indisponibilidades","gerar","conferencia","publicadas","quadrinhos"];
+const VIEWS = ["setores","militares","indisponibilidades","gerar","conferencia","publicadas","quadrinhos","permuta","falta","lastros"];
 function irPara(v){
   if(v === "pessoas") v = "militares";
   if(v === "salvas") v = "publicadas";
   if(v === "conferencia" && !rascunho) v = "gerar";
+  if((v === "permuta" || v === "falta") && !(rascunho && rascunho.salvo)) v = "publicadas";
   if(!VIEWS.includes(v)) v = S.setores.length ? (S.pessoas.length ? "gerar" : "militares") : "setores";
   document.querySelectorAll(".view").forEach(el => el.classList.toggle("ativa", el.id === "v-" + v));
   document.querySelectorAll("nav a").forEach(a => { if(a.dataset.view === v) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
@@ -849,14 +937,29 @@ $("#mil-quals").innerHTML = qualsHtml(["PA"]);
 $("#mil-add").addEventListener("click", () => {
   const setorId = $("#mil-setor").value;
   if(!setorId){ toast("Crie um setor antes de cadastrar militares."); return; }
-  const nomes = $("#mil-nomes").value.split("\n").map(n => n.trim()).filter(Boolean);
-  if(!nomes.length){ $("#mil-nomes").focus(); toast("Digite pelo menos um nome."); return; }
+  const novos = [];
+  const nome = $("#mil-nome").value.trim(), guerra = $("#mil-guerra").value.trim();
+  if(nome || guerra){
+    if(!nome){ $("#mil-nome").focus(); toast("Digite o nome completo."); return; }
+    if(!guerra){ $("#mil-guerra").focus(); toast("Digite o nome de guerra."); return; }
+    novos.push({ nome, guerra });
+  }
+  for(const l of $("#mil-nomes").value.split("\n").map(n => n.trim()).filter(Boolean)){
+    const [n, g] = l.split(/[;\t]/).map(x => (x || "").trim());
+    if(!n || !g){ document.querySelector("details.varios").open = true; $("#mil-nomes").focus(); toast(`Falta o nome de guerra na linha “${l}”. Use: nome completo; nome de guerra.`); return; }
+    novos.push({ nome: n, guerra: g });
+  }
+  if(!novos.length){ $("#mil-nome").focus(); toast("Digite o nome completo e o nome de guerra."); return; }
+  const grad = $("#mil-grad").value;
   const quals = [...document.querySelectorAll("#mil-quals input:checked")].map(i => i.value);
-  nomes.forEach(nome => S.pessoas.push({ id: uid(), nome, setorId, grad: $("#mil-grad").value, ativo: true, quals: quals.slice() }));
-  $("#mil-nomes").value = "";
+  const repetidos = novos.filter(x => S.pessoas.some(p => p.ativo !== false && p.grad === grad && nomeExib(p).toLowerCase() === x.guerra.toLowerCase())).map(x => `${grad} ${x.guerra}`);
+  novos.forEach(x => S.pessoas.push({ id: uid(), nome: x.nome, guerra: x.guerra, setorId, grad, ativo: true, quals: quals.slice() }));
+  $("#mil-nome").value = ""; $("#mil-guerra").value = ""; $("#mil-nomes").value = "";
   salvarCadastro(); renderTudo();
-  toast(nomes.length === 1 ? `${nomes[0]} cadastrado.` : `${nomes.length} militares cadastrados.`);
+  if(repetidos.length) toast(`Atenção: já existia outro ${repetidos.join(", ")}. Diferencie os nomes de guerra para não confundir na escala.`);
+  else toast(novos.length === 1 ? `${grad} ${novos[0].guerra} cadastrado.` : `${novos.length} militares cadastrados.`);
 });
+$("#mil-guerra").addEventListener("keydown", e => { if(e.key === "Enter") $("#mil-add").click(); });
 $("#mil-busca").addEventListener("input", renderMilitares);
 $("#mil-filtro").addEventListener("change", renderMilitares);
 $("#mil-filtro-q").addEventListener("change", renderMilitares);
@@ -875,32 +978,33 @@ function renderMilitares(){
 
   const el = $("#lista-militares");
   if(!S.setores.length){ el.innerHTML = `<div class="vazio"><strong>Crie os setores primeiro</strong>Cada militar pertence a um setor. <a href="#setores">Ir para Setores</a></div>`; return; }
-  if(!S.pessoas.length){ el.innerHTML = `<div class="vazio"><strong>Nenhum militar cadastrado</strong>Adicione os militares acima. Você pode colar uma lista com um nome por linha.</div>`; return; }
+  if(!S.pessoas.length){ el.innerHTML = `<div class="vazio"><strong>Nenhum militar cadastrado</strong>Adicione os militares acima. Para vários de uma vez, use “Cadastrar vários de uma vez”.</div>`; return; }
   const filG = $("#mil-filtro-g");
   const busca = $("#mil-busca").value.trim().toLowerCase();
   const hist = contagemHistorico();
   const h = hoje();
   const todas = listaIndisp();
-  const lista = S.pessoas.filter(p => (!fil.value || p.setorId === fil.value) && (!busca || p.nome.toLowerCase().includes(busca))
+  const lista = S.pessoas.filter(p => (!fil.value || p.setorId === fil.value) && casaBusca(p, busca)
       && (!filQ.value || (filQ.value === "__nenhuma" ? !qualsDe(p).length : qualsDe(p).includes(filQ.value)))
       && (!filG.value || (filG.value === "__sem" ? !p.grad : p.grad === filG.value)))
-    .sort((a,b) => ((setorPorId(a.setorId)||{}).nome || "").localeCompare((setorPorId(b.setorId)||{}).nome || "","pt-BR") || (GRADS.indexOf(a.grad) + 1 || 9) - (GRADS.indexOf(b.grad) + 1 || 9) || a.nome.localeCompare(b.nome, "pt-BR"));
+    .sort((a,b) => ((setorPorId(a.setorId)||{}).nome || "").localeCompare((setorPorId(b.setorId)||{}).nome || "","pt-BR") || (GRADS.indexOf(a.grad) + 1 || 9) - (GRADS.indexOf(b.grad) + 1 || 9) || cmpNome(a, b));
   if(!lista.length){ el.innerHTML = `<div class="vazio">Nenhum militar encontrado com esses filtros.</div>`; return; }
-  el.innerHTML = `<div class="tabela-wrap"><table style="min-width:1080px"><thead><tr><th>Nome</th><th>Graduação</th><th>Setor</th><th>Qualificações</th><th>Serviços</th><th>Situação</th><th>Ativo</th><th><span class="sr">Ações</span></th></tr></thead><tbody>
+  el.innerHTML = `<div class="tabela-wrap"><table style="min-width:1240px"><thead><tr><th>Nome completo</th><th>Nome de guerra</th><th>Graduação</th><th>Setor</th><th>Qualificações</th><th>Serviços</th><th>Situação</th><th>Ativo</th><th><span class="sr">Ações</span></th></tr></thead><tbody>
     ${lista.map(p => {
       const ind = indispNo(p.id, h);
       const prox = todas.filter(i => i.pessoaId === p.id && i.inicio > h).sort((a,b) => a.inicio.localeCompare(b.inicio))[0];
       const fimAtual = ind ? (todas.filter(i => i.pessoaId === p.id && i.inicio <= h && h <= i.fim).map(i => i.fim).sort().pop()) : null;
       const sit = ind ? `<span class="aviso">Indisponível até ${brCurto(fimAtual)}</span>` : (prox ? `<span style="font-size:13px;color:var(--muted)">Indisponível a partir de ${brCurto(prox.inicio)}</span>` : `<span style="font-size:13px;color:var(--muted)">Disponível</span>`);
       return `<tr data-id="${p.id}" class="${p.ativo === false ? "inativo" : ""}">
-        <td><input type="text" value="${esc(p.nome)}" data-campo="nome" aria-label="Nome" maxlength="80"></td>
+        <td><input type="text" value="${esc(p.nome)}" data-campo="nome" aria-label="Nome completo" maxlength="100" style="min-width:210px"></td>
+        <td><input type="text" value="${esc(p.guerra || "")}" data-campo="guerra" aria-label="Nome de guerra" maxlength="40" placeholder="Preencher" style="min-width:110px;font-weight:600;${p.guerra ? "" : "border-color:var(--danger)"}"></td>
         <td><select data-campo="grad" aria-label="Graduação" style="min-width:78px;${p.grad ? "" : "border-color:var(--danger)"}">${p.grad ? "" : '<option value="" selected>—</option>'}${GRADS.map(g => `<option value="${g}" ${p.grad === g ? "selected" : ""}>${g}</option>`).join("")}</select></td>
         <td><select data-campo="setor" aria-label="Setor" style="border-left:5px solid ${corSetor(p.setorId)}">${S.setores.map(s => `<option value="${s.id}" ${s.id === p.setorId ? "selected" : ""}>${esc(s.nome)}</option>`).join("")}</select></td>
-        <td><div class="quals" data-campo="quals">${qualsHtml(qualsDe(p), p.nome)}</div></td>
+        <td><div class="quals" data-campo="quals">${qualsHtml(qualsDe(p), nomeGrad(p))}</div></td>
         <td>${hist[p.id] || 0}</td>
         <td>${sit}</td>
         <td><input type="checkbox" data-campo="ativo" ${p.ativo !== false ? "checked" : ""} aria-label="Ativo" style="width:18px;height:18px;accent-color:#111"></td>
-        <td style="text-align:right"><button class="btn icone peq perigo" data-acao="excluir" aria-label="Excluir ${esc(p.nome)}" title="Excluir">✕</button></td>
+        <td style="text-align:right"><button class="btn icone peq perigo" data-acao="excluir" aria-label="Excluir ${esc(nomeGrad(p))}" title="Excluir">✕</button></td>
       </tr>`;
     }).join("")}</tbody></table></div>`;
 }
@@ -913,6 +1017,7 @@ $("#lista-militares").addEventListener("change", e => {
   }
   const c = e.target.dataset.campo;
   if(c === "nome"){ const v = e.target.value.trim(); if(v) p.nome = v; else e.target.value = p.nome; }
+  if(c === "guerra") p.guerra = e.target.value.trim();
   if(c === "setor") p.setorId = e.target.value;
   if(c === "grad"){ if(e.target.value) p.grad = e.target.value; }
   if(c === "ativo") p.ativo = e.target.checked;
@@ -921,11 +1026,13 @@ $("#lista-militares").addEventListener("change", e => {
 $("#lista-militares").addEventListener("click", async e => {
   const b = e.target.closest("button[data-acao=excluir]"); if(!b) return;
   const p = pessoaPorId(b.closest("tr").dataset.id); if(!p) return;
-  if(!(await confirmar("Excluir militar", `${p.nome} e suas indisponibilidades serão excluídos. Nas escalas publicadas o nome aparecerá como “Militar removido”. Para só tirar das próximas escalas, desmarque “Ativo”.`, "Excluir"))) return;
+  if(!(await confirmar("Excluir militar", `${nomeGrad(p)} (${p.nome}) e suas indisponibilidades serão excluídos. Nas escalas publicadas o nome aparecerá como “Militar removido”. Para só tirar das próximas escalas, desmarque “Ativo”.`, "Excluir"))) return;
   S.pessoas = S.pessoas.filter(x => x.id !== p.id);
   const tinha = S.indisp.some(i => i.pessoaId === p.id);
   S.indisp = S.indisp.filter(i => i.pessoaId !== p.id);
-  salvarCadastro(); if(tinha) salvarIndisp(); renderTudo();
+  const tinhaL = (S.lastros || []).some(l => l.pessoaId === p.id);
+  S.lastros = (S.lastros || []).filter(l => l.pessoaId !== p.id);
+  salvarCadastro(); if(tinha) salvarIndisp(); if(tinhaL) salvarLastros(); renderTudo();
 });
 
 /* ---------- INDISPONIBILIDADES ---------- */
@@ -939,7 +1046,7 @@ $("#ind-add").addEventListener("click", () => {
   S.indisp.push({ id: uid(), pessoaId, inicio, fim, motivo: $("#ind-motivo").value.trim() });
   $("#ind-motivo").value = ""; $("#ind-inicio").value = ""; $("#ind-fim").value = "";
   salvarIndisp(); renderTudo();
-  toast(`Indisponibilidade lançada para ${pessoaPorId(pessoaId).nome}.`);
+  toast(`Indisponibilidade lançada para ${nomeGrad(pessoaPorId(pessoaId))}.`);
 });
 ["#ind-busca"].forEach(s => $(s).addEventListener("input", renderIndisp));
 ["#ind-passadas","#ind-auto"].forEach(s => $(s).addEventListener("change", renderIndisp));
@@ -951,8 +1058,8 @@ function renderIndisp(){
   const h = hoje(), busca = $("#ind-busca").value.trim().toLowerCase(), passadas = $("#ind-passadas").checked, comAuto = $("#ind-auto").checked;
   const todas = listaIndisp();
   const lista = todas.filter(i => (passadas || i.fim >= h) && (comAuto || !i.auto))
-    .filter(i => { const p = pessoaPorId(i.pessoaId); return p && (!busca || p.nome.toLowerCase().includes(busca)); })
-    .sort((a,b) => a.inicio.localeCompare(b.inicio) || (pessoaPorId(a.pessoaId).nome).localeCompare(pessoaPorId(b.pessoaId).nome, "pt-BR"));
+    .filter(i => { const p = pessoaPorId(i.pessoaId); return p && casaBusca(p, busca); })
+    .sort((a,b) => a.inicio.localeCompare(b.inicio) || cmpNome(pessoaPorId(a.pessoaId), pessoaPorId(b.pessoaId)));
   if(!lista.length){
     el.innerHTML = `<div class="vazio">${todas.length ? "Nenhum período com esses filtros." : "<strong>Nenhuma indisponibilidade</strong>Lance acima férias, dispensas e outros impedimentos."}</div>`; return;
   }
@@ -960,7 +1067,7 @@ function renderIndisp(){
     ${lista.map(i => { const p = pessoaPorId(i.pessoaId); const s = setorPorId(p.setorId) || { nome:"", cor:"#888" };
       const atual = i.inicio <= h && h <= i.fim;
       return `<tr data-id="${i.id}" ${i.fim < h ? 'style="opacity:.6"' : ""}>
-        <td><b style="font-weight:600">${esc(p.nome)}</b> ${atual ? '<span class="aviso" style="margin-left:6px">agora</span>' : ""}</td>
+        <td><b style="font-weight:600">${esc(nomeGrad(p))}</b> ${atual ? '<span class="aviso" style="margin-left:6px">agora</span>' : ""}</td>
         <td><span class="tag" style="--cor:${s.cor}">${esc(s.nome)}</span></td>
         <td style="white-space:nowrap">${periodoTxt(i.inicio, i.fim)}</td>
         <td>${diff(i.inicio, i.fim) + 1}</td>
@@ -1057,18 +1164,20 @@ function gerarEscala(p, ignorarId){
   const parts = ativos().filter(x => p.setores.includes(x.setorId) && temQual(x, p.qualificacao));
   const cont = {}, ult = {}, nivel = {}, alt = {};
   parts.forEach(x => { cont[x.id] = 0; ult[x.id] = null; nivel[x.id] = p.prioridade ? ((setorPorId(x.setorId) || {}).nivel || 1) : 1; });
-  S.setores.forEach(s => { parts.filter(x => x.setorId === s.id).sort((a,b) => a.nome.localeCompare(b.nome, "pt-BR")).forEach((x, i) => alt[x.id] = i); });
+  S.setores.forEach(s => { parts.filter(x => x.setorId === s.id).sort(cmpNome).forEach((x, i) => alt[x.id] = i); });
   if(p.historico){
-    S.escalas.forEach(e => { if(e.id === ignorarId) return; e.dias.forEach(d => d.pessoas.forEach(id => {
-      if(id && id in cont){ cont[id]++; if(d.data < p.inicio && (!ult[id] || d.data > ult[id])) ult[id] = d.data; }
-    })); });
+    S.escalas.forEach(e => { if(e.id === ignorarId) return; servicosDe(e, (id, data) => {
+      if(id in cont){ cont[id]++; if(data < p.inicio && (!ult[id] || data > ult[id])) ult[id] = data; }
+    }); });
     const grupos = {};
     parts.forEach(x => (grupos[x.grad || "_"] = grupos[x.grad || "_"] || []).push(x.id));
     Object.values(grupos).forEach(ids => { const max = Math.max(0, ...ids.map(id => cont[id])); ids.forEach(id => cont[id] = Math.max(cont[id], max - 1) - (max - 1)); });
+    // lastros somam integralmente: o militar fica para trás até os demais alcançarem
+    (S.lastros || []).forEach(l => { if(l.pessoaId in cont) cont[l.pessoaId] += l.qtd; });
   }
   const cmp = (a, b) => (cont[a.id] - cont[b.id]) || (nivel[a.id] - nivel[b.id])
     || ((ult[a.id] || "") < (ult[b.id] || "") ? -1 : (ult[a.id] || "") > (ult[b.id] || "") ? 1 : 0)
-    || (alt[a.id] - alt[b.id]) || a.nome.localeCompare(b.nome, "pt-BR");
+    || (alt[a.id] - alt[b.id]) || cmpNome(a, b);
   const dias = [];
   for(const data of listarDatas(p)){
     const escolhidos = [];
@@ -1141,18 +1250,22 @@ function renderConferencia(){
     const chips = d.pessoas.map((id, v) => {
       if(!id){ vagasAbertas++; return `<button class="pessoa-btn vaga" data-dia="${i}" data-vaga="${v}"><b>Vaga ${gradDaVaga(p, v) ? "de " + gradDaVaga(p, v) + " " : ""}em aberto</b><small>Clique para escolher</small></button>`; }
       const pe = pessoaPorId(id); const s = pe ? setorPorId(pe.setorId) : null;
-      if(probs[v]) conflitos++;
-      return `<button class="pessoa-btn ${probs[v] ? "conflito" : ""}" style="--cor:${s ? s.cor : "#888"}" data-dia="${i}" data-vaga="${v}">
-        <b>${pe && pe.grad ? `<span class="grad">${pe.grad}</span>` : ""}${esc(pe ? pe.nome : "Militar removido")}</b><small>${esc(probs[v] || (s ? s.nome : ""))}</small></button>`;
+      const falta = faltouVaga(rascunho, d.data, v, id);
+      const perm = falta ? null : ultimaPermuta(rascunho, d.data, v, id);
+      if(probs[v] && !falta) conflitos++;
+      const sub = falta ? "Falta: quadrinho não contado" : (probs[v] || (perm ? `Permuta: no lugar de ${nomeCurto(perm.saiu)}` : (s ? s.nome : "")));
+      const cls = falta ? "falta" : (probs[v] ? "conflito" : (perm ? "permutado" : ""));
+      return `<button class="pessoa-btn ${cls}" style="--cor:${s ? s.cor : "#888"}" data-dia="${i}" data-vaga="${v}">
+        <b>${pe && pe.grad ? `<span class="grad">${pe.grad}</span>` : ""}${esc(pe ? nomeExib(pe) : "Militar removido")}</b><small>${esc(sub)}</small></button>`;
     }).join("");
     return `<div class="dia ${fds ? "fds" : ""}"><div class="data"><span class="num">${String(dt.getDate()).padStart(2,"0")}</span><span class="sem">${DIAS[dt.getDay()]}<span>${MESES[dt.getMonth()]}</span></span></div><div class="vagas">${chips}</div></div>`;
   }).join("");
 
   const cont = {};
-  rascunho.dias.forEach(d => d.pessoas.forEach(id => { if(id) cont[id] = (cont[id] || 0) + 1; }));
-  const escalados = Object.keys(cont).length;
+  servicosDe(rascunho, id => { cont[id] = (cont[id] || 0) + 1; });
+  const escalados = new Set(rascunho.dias.flatMap(d => d.pessoas).filter(Boolean)).size;
   const parts = S.pessoas.filter(x => (x.ativo !== false && p.setores.includes(x.setorId) && temQual(x, p.qualificacao) && (!p.vagasGrad || (p.vagasGrad[x.grad] || 0) > 0)) || cont[x.id]);
-  const resumo = parts.sort((a,b) => (cont[b.id] || 0) - (cont[a.id] || 0) || a.nome.localeCompare(b.nome,"pt-BR"))
+  const resumo = parts.sort((a,b) => (cont[b.id] || 0) - (cont[a.id] || 0) || cmpNome(a, b))
     .map(x => `<div><span><span class="tag" style="--cor:${corSetor(x.setorId)};padding:0 4px 0 0;background:none"></span>${esc(nomeGrad(x))}</span><b>${cont[x.id] || 0}</b></div>`).join("");
 
   const pub = rascunho.salvo;
@@ -1171,6 +1284,7 @@ function renderConferencia(){
         ${pub ? "" : `<button class="btn" data-q="voltar">Voltar e ajustar</button><button class="btn" data-q="regerar">Gerar novamente</button>`}
         <button class="btn" data-q="texto">Copiar texto</button>
         <button class="btn" data-q="csv">Exportar planilha</button>
+        ${pub ? `<button class="btn pri" data-q="permuta">Lançar permuta</button><button class="btn pri" data-q="falta">Lançar falta</button>` : ""}
       </div>
     </div>
     <div class="ficha">
@@ -1185,6 +1299,7 @@ function renderConferencia(){
     ${conflitos ? `<div class="alerta">${conflitos} escalação(ões) têm conflito com indisponibilidade, qualificação ou folga mínima. Estão destacadas em vermelho.</div>` : ""}
     <div class="quadro">${linhas}</div>
     <div class="painel" style="margin-top:20px"><h2>Serviços por militar nesta escala</h2><div class="resumo">${resumo}</div></div>
+    ${registrosHtml(rascunho)}
     <div class="publicar-barra no-print">
       <p>${pub
         ? (rascunho.alterado ? "Publique as alterações para salvar as trocas e atualizar as indisponibilidades automáticas." : "Escala publicada. Os escalados estão indisponíveis nas datas do serviço.")
@@ -1200,6 +1315,9 @@ $("#conf-area").addEventListener("click", e => {
   if(q === "voltar") navegar("gerar");
   if(q === "regerar"){ const dias = validarEGerar(rascunho.params, null); if(dias){ rascunho.dias = dias; rascunho.alterado = true; renderConferencia(); toast("Escala gerada novamente."); } }
   if(q === "publicar") publicar();
+  if(q === "permuta" || q === "falta") abrirRegistro(q);
+  if(q === "desfazer-permuta") desfazerPermuta(b.dataset.id);
+  if(q === "remover-falta") removerFalta(b.dataset.id);
   if(q === "csv") exportarCSV();
   if(q === "texto") copiarTexto();
 });
@@ -1214,12 +1332,214 @@ async function publicar(){
   if(!rascunho.id) rascunho.id = uid();
   const existente = S.escalas.find(e => e.id === rascunho.id);
   const doc = { id: rascunho.id, titulo: rascunho.titulo, params: rascunho.params, dias: rascunho.dias,
+    permutas: rascunho.permutas || [], faltas: rascunho.faltas || [],
     publicadaEm: existente ? (existente.publicadaEm || existente.criadaEm || agora) : agora, atualizadaEm: agora };
   S.escalas = S.escalas.filter(e => e.id !== doc.id).concat([clone(doc)]);
   rascunho.salvo = true; rascunho.alterado = false; rascunho.publicadaEm = doc.publicadaEm;
   renderTudo();
   const gravou = await gravarEscala(doc);
   if(gravou) toast(`Escala publicada. Indisponibilidade lançada para ${n} militar(es).`);
+}
+
+/* ---------- PERMUTA E FALTA ---------- */
+function nomeCurto(id){ const p = pessoaPorId(id); return p ? nomeGrad(p) : "militar removido"; }
+function ultimosServicos(){ const u = {}; S.escalas.forEach(e => servicosDe(e, (id, data) => { if(!u[id] || data > u[id]) u[id] = data; })); return u; }
+function opcoesEscalados(e){
+  return e.dias.map((d, i) => {
+    const dt = parse(d.data);
+    const ops = d.pessoas.map((pid, v) => pid && !faltouVaga(e, d.data, v, pid) ? `<option value="${i}|${v}">${brCurto(d.data)}, ${esc(nomeCurto(pid))}</option>` : "").join("");
+    return ops ? `<optgroup label="${brCurto(d.data)} (${DIAS[dt.getDay()]})">${ops}</optgroup>` : "";
+  }).join("");
+}
+async function alterarPublicada(fn){
+  const e = S.escalas.find(x => x.id === rascunho.id);
+  if(!e){ toast("Escala não encontrada."); return false; }
+  if(fn(e) === false) return false;
+  e.atualizadaEm = new Date().toISOString();
+  rascunho = Object.assign(clone(e), { salvo: true, alterado: false });
+  renderTudo();
+  return await gravarEscala(e);
+}
+function abrirRegistro(tipo){
+  if(!rascunho || !rascunho.salvo) return;
+  if(somenteLeitura){ toast("Você só tem acesso de leitura nesta página."); return; }
+  if(rascunho.alterado){ toast("Publique as alterações pendentes antes de lançar permuta ou falta."); return; }
+  if(tipo === "permuta") renderPermuta(); else renderFalta();
+  navegar(tipo);
+}
+const ordemPermuta = () => (document.querySelector('input[name=pm-ordem]:checked') || {}).value || "quadrinho";
+function renderPermuta(){
+  const e = rascunho, p = e.params, prio = !!S.priorizar;
+  $("#permuta-area").innerHTML = `
+    <button class="btn peq voltar" data-r="voltar">← Voltar para a escala</button>
+    <h1>Lançar permuta</h1>
+    <p class="intro">${esc(e.titulo)}. O substituto passa a contar o quadrinho e fica indisponível no dia; o militar substituído perde o quadrinho e a indisponibilidade.</p>
+    <div class="painel">
+      <div class="grade g2">
+        <label class="campo">Militar escalado que vai sair
+          <select id="pm-sai"><option value="">Selecione</option>${opcoesEscalados(e)}</select>
+        </label>
+        <div class="campo">Ordem das sugestões de substituto
+          <div class="checks" style="margin-top:4px">
+            <label class="check"><input type="radio" name="pm-ordem" value="setor" ${prio ? "checked" : "disabled"}><span>Prioridade dos setores<small>${prio ? "Setor de maior prioridade primeiro; dentro dele, quem tem menos quadrinhos." : "Indisponível: a priorização está desativada na aba Setores."}</small></span></label>
+            <label class="check"><input type="radio" name="pm-ordem" value="quadrinho" ${prio ? "" : "checked"}><span>Quadrinhos<small>Quem tem menos quadrinhos primeiro; no empate, quem está há mais tempo sem serviço.</small></span></label>
+          </div>
+        </div>
+        <label class="campo" style="grid-column:1/-1">Substituto
+          <select id="pm-entra" disabled><option value="">Selecione primeiro o militar que vai sair</option></select>
+        </label>
+        <div id="pm-info" class="req" style="grid-column:1/-1;margin-top:0"></div>
+        <label class="campo" style="grid-column:1/-1">Justificativa
+          <textarea id="pm-just" rows="3" maxlength="500" placeholder="Ex.: Militar convocado para curso; permuta autorizada pelo comandante do pelotão."></textarea>
+        </label>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+        <button class="btn" data-r="voltar">Cancelar</button>
+        <button class="btn amarelo" data-r="salvar-permuta">Salvar permuta</button>
+      </div>
+    </div>`;
+}
+function candidatosPermuta(i, v, ordem){
+  const e = rascunho, d = e.dias[i], p = e.params;
+  const gv = gradDaVaga(p, v), q = p.qualificacao;
+  const hist = contagemHistorico(), ult = ultimosServicos();
+  const lista = ativos().filter(x => x.id !== d.pessoas[v]).map(x => {
+    let motivo = "";
+    if(d.pessoas.includes(x.id)) motivo = "já escalado neste dia";
+    else if(gv && x.grad !== gv) motivo = `é ${x.grad || "sem graduação"}, vaga de ${gv}`;
+    else if(q && !temQual(x, q)) motivo = `sem qualificação ${q}`;
+    else { const ind = indispNo(x.id, d.data, e.id); if(ind) motivo = `indisponível${ind.motivo ? ": " + ind.motivo : ""}`; }
+    if(!motivo && p.folga > 0){
+      const perto = e.dias.find((y, j) => j !== i && y.pessoas.includes(x.id) && Math.abs(diff(y.data, d.data)) <= p.folga);
+      if(perto) motivo = `folga curta, serviço em ${brCurto(perto.data)}`;
+    }
+    return { x, motivo, n: hist[x.id] || 0, ult: ult[x.id] || "", nivel: (setorPorId(x.setorId) || {}).nivel || 99 };
+  });
+  const cmpQ = (a, b) => a.n - b.n || (a.ult < b.ult ? -1 : a.ult > b.ult ? 1 : 0) || cmpNome(a.x, b.x);
+  const cmp = ordem === "setor" ? (a, b) => a.nivel - b.nivel || cmpQ(a, b) : cmpQ;
+  return { aptos: lista.filter(c => !c.motivo).sort(cmp), outros: lista.filter(c => c.motivo).sort(cmp) };
+}
+function atualizarSubstitutos(){
+  const sel = $("#pm-sai").value, ent = $("#pm-entra");
+  if(!sel){ ent.disabled = true; ent.innerHTML = `<option value="">Selecione primeiro o militar que vai sair</option>`; $("#pm-info").innerHTML = ""; return; }
+  const [i, v] = sel.split("|").map(Number);
+  const ordem = ordemPermuta();
+  const { aptos, outros } = candidatosPermuta(i, v, ordem);
+  const ant = ent.value;
+  const lbl = c => `${esc(nomeGrad(c.x))}, ${esc((setorPorId(c.x.setorId) || {}).nome || "")}${ordem === "setor" ? ` (prioridade ${c.nivel})` : ""}, ${c.n} quadrinho${c.n === 1 ? "" : "s"}`;
+  ent.innerHTML = `<option value="">Selecione o substituto</option>`
+    + (aptos.length ? `<optgroup label="Aptos, na ordem de prioridade">${aptos.map((c, k) => `<option value="${c.x.id}">${k + 1}º ${lbl(c)}</option>`).join("")}</optgroup>` : `<optgroup label="Nenhum militar apto disponível"></optgroup>`)
+    + (outros.length ? `<optgroup label="Com restrição">${outros.map(c => `<option value="${c.x.id}">${lbl(c)}: ${esc(c.motivo)}</option>`).join("")}</optgroup>` : "");
+  ent.disabled = false;
+  if(ant && [...ent.options].some(o => o.value === ant)) ent.value = ant;
+  infoPermuta();
+}
+function infoPermuta(){
+  const sel = $("#pm-sai").value; if(!sel) return;
+  const [i, v] = sel.split("|").map(Number);
+  const d = rascunho.dias[i], p = rascunho.params, gv = gradDaVaga(p, v), dt = parse(d.data);
+  let html = `<span>Serviço de ${DIAS_NOME[dt.getDay()]}, ${br(d.data)}.</span>${gv ? `<span>Vaga de</span><span class="grad">${gv}</span>` : ""}${p.qualificacao ? `<span>Exige</span><span class="qual">${p.qualificacao}</span>` : ""}`;
+  const id = $("#pm-entra").value;
+  if(id){
+    const c = candidatosPermuta(i, v, ordemPermuta());
+    const r = c.outros.find(x => x.x.id === id);
+    if(r) html += `<b style="color:var(--danger);flex-basis:100%">Atenção: ${esc(r.motivo)}. A permuta pode ser salva, mas ficará destacada na escala.</b>`;
+  }
+  $("#pm-info").innerHTML = html;
+}
+$("#permuta-area").addEventListener("change", e => {
+  if(e.target.id === "pm-sai" || e.target.name === "pm-ordem") atualizarSubstitutos();
+  if(e.target.id === "pm-entra") infoPermuta();
+});
+$("#permuta-area").addEventListener("click", e => {
+  const b = e.target.closest("button[data-r]"); if(!b) return;
+  if(b.dataset.r === "voltar") navegar("conferencia");
+  if(b.dataset.r === "salvar-permuta") salvarPermuta();
+});
+async function salvarPermuta(){
+  const sel = $("#pm-sai").value, entrou = $("#pm-entra").value, just = $("#pm-just").value.trim();
+  if(!sel){ toast("Selecione o militar que vai sair."); return; }
+  if(!entrou){ toast("Selecione o substituto."); return; }
+  if(!just){ $("#pm-just").focus(); toast("Escreva a justificativa da permuta."); return; }
+  const [i, v] = sel.split("|").map(Number);
+  const ordem = ordemPermuta();
+  const data = rascunho.dias[i].data, saiu = rascunho.dias[i].pessoas[v];
+  const ok = await alterarPublicada(e => {
+    const d = e.dias[i];
+    if(!d || d.data !== data || d.pessoas[v] !== saiu){ toast("A escala mudou enquanto você preenchia. Abra a permuta de novo."); return false; }
+    if(d.pessoas.includes(entrou)){ toast("O substituto já está escalado neste dia."); return false; }
+    d.pessoas[v] = entrou;
+    e.permutas = e.permutas || [];
+    e.permutas.push({ id: uid(), data, vaga: v, saiu, entrou, justificativa: just, ordem, em: new Date().toISOString() });
+  });
+  if(ok){ navegar("conferencia"); toast(`Permuta salva: ${nomeCurto(entrou)} no lugar de ${nomeCurto(saiu)}.`); }
+}
+function renderFalta(){
+  const e = rascunho;
+  $("#falta-area").innerHTML = `
+    <button class="btn peq voltar" data-r="voltar">← Voltar para a escala</button>
+    <h1>Lançar falta</h1>
+    <p class="intro">${esc(e.titulo)}. O militar continua na escala, marcado com falta, e o quadrinho dele não é contado.</p>
+    <div class="painel">
+      <label class="campo">Militar escalado que faltou
+        <select id="ft-mil"><option value="">Selecione</option>${opcoesEscalados(e)}</select>
+      </label>
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+        <button class="btn" data-r="voltar">Cancelar</button>
+        <button class="btn amarelo" data-r="salvar-falta">Salvar falta</button>
+      </div>
+    </div>`;
+}
+$("#falta-area").addEventListener("click", e => {
+  const b = e.target.closest("button[data-r]"); if(!b) return;
+  if(b.dataset.r === "voltar") navegar("conferencia");
+  if(b.dataset.r === "salvar-falta") salvarFalta();
+});
+async function salvarFalta(){
+  const sel = $("#ft-mil").value;
+  if(!sel){ toast("Selecione o militar que faltou."); return; }
+  const [i, v] = sel.split("|").map(Number);
+  const data = rascunho.dias[i].data, pid = rascunho.dias[i].pessoas[v];
+  const ok = await alterarPublicada(e => {
+    const d = e.dias[i];
+    if(!d || d.data !== data || d.pessoas[v] !== pid){ toast("A escala mudou enquanto você preenchia. Tente de novo."); return false; }
+    e.faltas = e.faltas || [];
+    e.faltas.push({ id: uid(), data, vaga: v, pessoaId: pid, em: new Date().toISOString() });
+  });
+  if(ok){ navegar("conferencia"); toast(`Falta lançada para ${nomeCurto(pid)}. O quadrinho não será contado.`); }
+}
+function registrosHtml(e){
+  if(!e.salvo) return "";
+  const perms = e.permutas || [];
+  const falt = (e.faltas || []).filter(f => { const d = e.dias.find(x => x.data === f.data); return d && d.pessoas[f.vaga] === f.pessoaId; });
+  if(!perms.length && !falt.length) return "";
+  const itens = [...perms.map(x => ({ t: "p", x })), ...falt.map(x => ({ t: "f", x }))]
+    .sort((a, b) => a.x.data.localeCompare(b.x.data) || a.x.em.localeCompare(b.x.em));
+  return `<div class="painel"><h2>Permutas e faltas</h2>${itens.map(({ t, x }) => {
+    const dt = parse(x.data); const quando = `${brCurto(x.data)} (${DIAS[dt.getDay()]})`;
+    if(t === "f") return `<div class="registro falta"><div><span class="reg-tipo">Falta</span><b>${quando}</b> ${esc(nomeCurto(x.pessoaId))}<small>Quadrinho não contado. Lançada em ${br(x.em.slice(0,10))}.</small></div><button class="btn peq no-print" data-q="remover-falta" data-id="${x.id}">Remover falta</button></div>`;
+    const d = e.dias.find(y => y.data === x.data);
+    const podeDesfazer = ultimaPermuta(e, x.data, x.vaga, x.entrou) === x && d && d.pessoas[x.vaga] === x.entrou;
+    return `<div class="registro"><div><span class="reg-tipo">Permuta</span><b>${quando}</b> Saiu ${esc(nomeCurto(x.saiu))}, entrou ${esc(nomeCurto(x.entrou))}<small>Justificativa: ${esc(x.justificativa)}</small><small>Sugestões ordenadas por ${x.ordem === "setor" ? "prioridade dos setores" : "quadrinhos"}. Lançada em ${br(x.em.slice(0,10))}.</small></div>${podeDesfazer ? `<button class="btn peq no-print" data-q="desfazer-permuta" data-id="${x.id}">Desfazer</button>` : ""}</div>`;
+  }).join("")}</div>`;
+}
+async function desfazerPermuta(id){
+  if(rascunho.alterado){ toast("Publique as alterações pendentes antes."); return; }
+  const x = (rascunho.permutas || []).find(y => y.id === id); if(!x) return;
+  if(!(await confirmar("Desfazer permuta", `${nomeCurto(x.saiu)} volta para o serviço de ${br(x.data)} no lugar de ${nomeCurto(x.entrou)}, com o quadrinho e a indisponibilidade.`, "Desfazer"))) return;
+  const ok = await alterarPublicada(e => {
+    const d = e.dias.find(y => y.data === x.data);
+    if(!d || d.pessoas[x.vaga] !== x.entrou){ toast("Essa permuta não pode mais ser desfeita."); return false; }
+    if(d.pessoas.includes(x.saiu)){ toast(`${nomeCurto(x.saiu)} já está escalado neste dia.`); return false; }
+    d.pessoas[x.vaga] = x.saiu;
+    e.permutas = e.permutas.filter(y => y.id !== id);
+  });
+  if(ok) toast("Permuta desfeita.");
+}
+async function removerFalta(id){
+  if(rascunho.alterado){ toast("Publique as alterações pendentes antes."); return; }
+  const ok = await alterarPublicada(e => { e.faltas = (e.faltas || []).filter(f => f.id !== id); });
+  if(ok) toast("Falta removida. O quadrinho volta a contar.");
 }
 
 /* ---------- troca ---------- */
@@ -1240,7 +1560,7 @@ function renderTroca(){
   const { i, v } = trocaAlvo; const d = rascunho.dias[i]; const folga = rascunho.params.folga; const q = rascunho.params.qualificacao; const gv = gradDaVaga(rascunho.params, v);
   const busca = $("#troca-busca").value.trim().toLowerCase();
   const cont = {}; rascunho.dias.forEach(x => x.pessoas.forEach(id => { if(id) cont[id] = (cont[id] || 0) + 1; }));
-  const lista = ativos().filter(p => p.id !== d.pessoas[v] && (!busca || p.nome.toLowerCase().includes(busca))).map(p => {
+  const lista = ativos().filter(p => p.id !== d.pessoas[v] && casaBusca(p, busca)).map(p => {
     let st = "", ok = true;
     const ind = indispNo(p.id, d.data, rascunho.id);
     if(d.pessoas.includes(p.id)){ st = "Já está neste dia"; ok = false; }
@@ -1250,7 +1570,7 @@ function renderTroca(){
     else if(folga > 0){ const perto = rascunho.dias.find((x, j) => j !== i && x.pessoas.includes(p.id) && Math.abs(diff(x.data, d.data)) <= folga); if(perto){ st = `Serviço em ${brCurto(perto.data)}, folga curta`; ok = false; } }
     if(ok) st = rascunho.params.setores.includes(p.setorId) ? "Disponível" : "Disponível, setor fora desta escala";
     return { p, st, ok, n: cont[p.id] || 0 };
-  }).sort((a,b) => (b.ok - a.ok) || (a.n - b.n) || a.p.nome.localeCompare(b.p.nome,"pt-BR"));
+  }).sort((a,b) => (b.ok - a.ok) || (a.n - b.n) || cmpNome(a.p, b.p));
   $("#troca-lista").innerHTML = lista.length ? lista.map(x => {
     const s = setorPorId(x.p.setorId) || { nome: "", cor: "#888" };
     return `<button class="cand ${x.ok ? "" : "ruim"}" style="--cor:${s.cor}" data-id="${x.p.id}">
@@ -1274,7 +1594,12 @@ function nomeDe(id){ if(!id) return "(vaga em aberto)"; const p = pessoaPorId(id
 function textoEscala(){
   const p = rascunho.params;
   const linhas = [`*${rascunho.titulo}*`, `Atividade: ${p.atividade || "não informada"}`, periodoTxt(p.inicio, p.fim), ""];
-  rascunho.dias.forEach(d => { const dt = parse(d.data); linhas.push(`${brCurto(d.data)} (${DIAS[dt.getDay()]}): ${d.pessoas.map(nomeDe).join(", ")}`); });
+  rascunho.dias.forEach(d => { const dt = parse(d.data); linhas.push(`${brCurto(d.data)} (${DIAS[dt.getDay()]}): ${d.pessoas.map((id, v) => nomeDe(id) + (faltouVaga(rascunho, d.data, v, id) ? " (falta)" : "")).join(", ")}`); });
+  const perms = (rascunho.permutas || []).slice().sort((a,b) => a.data.localeCompare(b.data));
+  if(perms.length){
+    linhas.push("", "*Permutas*");
+    perms.forEach(x => linhas.push(`${brCurto(x.data)}: saiu ${nomeCurto(x.saiu)}, entrou ${nomeCurto(x.entrou)}. Justificativa: ${x.justificativa}`));
+  }
   return linhas.join("\n");
 }
 async function copiarTexto(){
@@ -1290,7 +1615,7 @@ async function exportarCSV(){
   const linhas = [cab.map(q).join(";")];
   rascunho.dias.forEach(d => {
     const dt = parse(d.data); const row = [rascunho.params.atividade || "", br(d.data), DIAS_NOME[dt.getDay()]];
-    for(let i = 0; i < n; i++){ const id = d.pessoas[i]; const p = id ? pessoaPorId(id) : null; row.push(nomeDe(id), p ? (setorPorId(p.setorId) || {}).nome || "" : ""); }
+    for(let i = 0; i < n; i++){ const id = d.pessoas[i]; const p = id ? pessoaPorId(id) : null; row.push(nomeDe(id) + (faltouVaga(rascunho, d.data, i, id) ? " (falta)" : ""), p ? (setorPorId(p.setorId) || {}).nome || "" : ""); }
     linhas.push(row.map(q).join(";"));
   });
   const csv = "\uFEFF" + linhas.join("\r\n");
@@ -1334,74 +1659,110 @@ $("#lista-publicadas").addEventListener("click", async e => {
 });
 
 /* ---------- QUADRINHOS ---------- */
-["#qd-atividade","#qd-setor","#qd-grad","#qd-de","#qd-ate","#qd-zeros"].forEach(s => $(s).addEventListener("change", renderQuadrinhos));
+["#qd-setor","#qd-grad","#qd-de","#qd-ate","#qd-zeros"].forEach(s => $(s).addEventListener("change", renderQuadrinhos));
 $("#qd-busca").addEventListener("input", renderQuadrinhos);
 let qdLista = [];
+const qdAbertos = new Set();
 function calcularQuadrinhos(){
-  const va = $("#qd-atividade").value, vs = $("#qd-setor").value, de = $("#qd-de").value, ate = $("#qd-ate").value;
-  const at = atividade(va);
-  const cont = {}, ult = {}, porAt = {};
+  const vs = $("#qd-setor").value, de = $("#qd-de").value, ate = $("#qd-ate").value;
+  const dentro = data => !((de && data < de) || (ate && data > ate));
+  const cont = {}, ult = {}, faltas = {}, lastro = {}, det = {};
+  const add = (id, item) => (det[id] = det[id] || []).push(item);
   S.escalas.forEach(e => {
-    const nomeAt = (e.params && e.params.atividade) || "Não informada";
-    if(va && nomeAt !== va) return;
+    const atv = (e.params && e.params.atividade) || "Atividade não informada";
     e.dias.forEach(d => {
-      if((de && d.data < de) || (ate && d.data > ate)) return;
-      d.pessoas.forEach(id => {
+      if(!dentro(d.data)) return;
+      d.pessoas.forEach((id, v) => {
         if(!id) return;
+        if(faltouVaga(e, d.data, v, id)){
+          faltas[id] = (faltas[id] || 0) + 1;
+          add(id, { data: d.data, atv, escala: e, conta: 0, sit: "Falta, não conta" });
+          return;
+        }
         cont[id] = (cont[id] || 0) + 1;
         if(!ult[id] || d.data > ult[id]) ult[id] = d.data;
-        porAt[id] = porAt[id] || {}; porAt[id][nomeAt] = (porAt[id][nomeAt] || 0) + 1;
+        const perm = ultimaPermuta(e, d.data, v, id);
+        add(id, { data: d.data, atv, escala: e, conta: 1, sit: perm ? `Por permuta, no lugar de ${nomeCurto(perm.saiu)}` : "Escalado" });
       });
     });
+    (e.permutas || []).forEach(x => {
+      if(!dentro(x.data)) return;
+      const d = e.dias.find(y => y.data === x.data);
+      if(d && d.pessoas.includes(x.saiu)) return;
+      add(x.saiu, { data: x.data, atv, escala: e, conta: 0, sit: `Saiu por permuta (entrou ${nomeCurto(x.entrou)})` });
+    });
+  });
+  (S.lastros || []).forEach(l => {
+    if(!dentro(l.data)) return;
+    cont[l.pessoaId] = (cont[l.pessoaId] || 0) + l.qtd;
+    lastro[l.pessoaId] = (lastro[l.pessoaId] || 0) + l.qtd;
+    add(l.pessoaId, { data: l.data, atv: "Lastro", escala: null, conta: l.qtd, sit: l.justificativa });
   });
   const busca = $("#qd-busca").value.trim().toLowerCase();
-  let lista = S.pessoas.filter(p => cont[p.id] || (p.ativo !== false && temQual(p, at && at.q)));
+  let lista = S.pessoas.filter(p => cont[p.id] || p.ativo !== false);
   if(vs) lista = lista.filter(p => p.setorId === vs);
   const vgr = $("#qd-grad").value; if(vgr) lista = lista.filter(p => p.grad === vgr);
   if(!$("#qd-zeros").checked) lista = lista.filter(p => cont[p.id]);
-  lista.sort((a,b) => (cont[b.id] || 0) - (cont[a.id] || 0) || a.nome.localeCompare(b.nome, "pt-BR"));
+  lista.sort((a,b) => (cont[b.id] || 0) - (cont[a.id] || 0) || cmpNome(a, b));
   let pos = 0, prev = null;
-  const linhas = lista.map((p, i) => { const c = cont[p.id] || 0; if(c !== prev){ pos = i + 1; prev = c; } return { p, c, pos, ult: ult[p.id], porAt: porAt[p.id] || {} }; });
-  return { linhas: linhas.filter(x => !busca || x.p.nome.toLowerCase().includes(busca)), todas: linhas, at };
+  const linhas = lista.map((p, i) => {
+    const c = cont[p.id] || 0; if(c !== prev){ pos = i + 1; prev = c; }
+    return { p, c, pos, ult: ult[p.id], f: faltas[p.id] || 0, l: lastro[p.id] || 0,
+      det: (det[p.id] || []).sort((a,b) => b.data.localeCompare(a.data)) };
+  });
+  return { linhas: linhas.filter(x => casaBusca(x.p, busca)), todas: linhas };
+}
+function detalheHtml(x){
+  const deEsc = x.c - x.l;
+  const resumo = `${x.c} quadrinho${x.c === 1 ? "" : "s"}: ${deEsc} de escalas${x.l ? ` e ${x.l} de lastro` : ""}.${x.f ? ` ${x.f} falta${x.f === 1 ? "" : "s"} (não contam).` : ""}`;
+  if(!x.det.length) return `<div class="rank-det"><p>Nenhum serviço registrado${$("#qd-de").value || $("#qd-ate").value ? " no período filtrado" : ""}.</p></div>`;
+  return `<div class="rank-det"><p>${resumo}</p><div class="tabela-wrap"><table><thead><tr><th>Data</th><th>Atividade</th><th>Escala</th><th>Situação</th><th style="text-align:right">Quadrinhos</th></tr></thead><tbody>
+    ${x.det.map(it => { const dt = parse(it.data); return `<tr class="${it.conta ? "" : "nao-conta"}">
+      <td style="white-space:nowrap">${br(it.data)} (${DIAS[dt.getDay()]})</td>
+      <td>${it.escala ? esc(it.atv) : `<span class="auto">Lastro</span>`}</td>
+      <td>${it.escala ? `<button class="link-det" data-esc="${it.escala.id}">${esc(it.escala.titulo)}</button>` : ""}</td>
+      <td>${esc(it.sit)}</td>
+      <td class="qt">${it.conta ? (it.escala ? "1" : "+" + it.conta) : "0"}</td></tr>`; }).join("")}
+  </tbody></table></div></div>`;
 }
 function renderQuadrinhos(){
-  const sa = $("#qd-atividade"), va = sa.value;
-  sa.innerHTML = `<option value="">Todas as atividades</option>` + ATIVIDADES.map(a => `<option value="${esc(a.nome)}">${esc(a.nome)}</option>`).join("");
-  sa.value = va;
   const ss = $("#qd-setor"), vs = ss.value;
   ss.innerHTML = `<option value="">Todos os setores</option>` + S.setores.slice().sort((a,b) => a.nome.localeCompare(b.nome,"pt-BR")).map(s => `<option value="${s.id}">${esc(s.nome)}</option>`).join("");
   ss.value = vs && setorPorId(vs) ? vs : "";
-  const { linhas, todas, at } = calcularQuadrinhos();
+  const { linhas, todas } = calcularQuadrinhos();
   qdLista = linhas;
   const el = $("#lista-quadrinhos");
   const total = todas.reduce((n, x) => n + x.c, 0);
   const comServ = todas.filter(x => x.c).length;
-  $("#qd-resumo").innerHTML = at
-    ? `<span class="qual">${at.q}</span><span>${total} quadrinho(s) de ${esc(at.nome)} entre ${comServ} militar(es).</span>`
-    : `<span>${total} quadrinho(s) em todas as atividades, entre ${comServ} militar(es).</span>`;
-  if(!S.escalas.length){ el.innerHTML = `<div class="vazio"><strong>Nenhuma escala publicada</strong>Os quadrinhos são contados a partir das escalas publicadas. <a href="#gerar">Gerar escala</a></div>`; return; }
+  $("#qd-resumo").innerHTML = `<span>${total} quadrinho(s) entre ${comServ} militar(es), somando todas as atividades${(S.lastros || []).length ? " e os lastros" : ""}.</span>`;
+  if(!S.escalas.length && !(S.lastros || []).length){ el.innerHTML = `<div class="vazio"><strong>Nenhuma escala publicada</strong>Os quadrinhos são contados a partir das escalas publicadas e dos lastros. <a href="#gerar">Gerar escala</a></div>`; return; }
   if(!linhas.length){ el.innerHTML = `<div class="vazio">Nenhum militar encontrado com esses filtros.</div>`; return; }
   const max = Math.max(1, ...linhas.map(x => x.c));
   el.innerHTML = `<div class="rank">${linhas.map(x => {
     const s = setorPorId(x.p.setorId) || { nome: "", cor: "#888" };
-    const det = !at && x.c ? Object.entries(x.porAt).sort((a,b) => b[1] - a[1]).map(([n, c]) => `${esc(n)}: ${c}`).join("; ") : "";
+    const aberto = qdAbertos.has(x.p.id);
     return `<div class="rank-item ${x.c && x.pos <= 3 ? "topo" : ""} ${x.c ? "" : "zero"}">
       <div class="rank-pos">${x.pos}º</div>
-      <div class="rank-nome"><b>${x.p.grad ? `<span class="grad">${x.p.grad}</span>` : ""}${esc(x.p.nome)}${x.p.ativo === false ? ' <span class="auto">Inativo</span>' : ""}</b><small><span class="tag" style="--cor:${s.cor};padding:0;background:none">${esc(s.nome)}</span>${x.ult ? ` Último serviço em ${br(x.ult)}` : ""}</small>${det ? `<small style="display:block">${det}</small>` : ""}</div>
+      <div class="rank-nome"><b>${x.p.grad ? `<span class="grad">${x.p.grad}</span>` : ""}${esc(nomeExib(x.p))}${x.p.ativo === false ? ' <span class="auto">Inativo</span>' : ""}</b><small><span class="tag" style="--cor:${s.cor};padding:0;background:none">${esc(s.nome)}</span>${x.ult ? ` Último serviço em ${br(x.ult)}.` : ""}</small>
+        <button class="link-det" data-det="${x.p.id}" aria-expanded="${aberto}">${aberto ? "Ocultar detalhes ▴" : "Detalhar ▾"}</button></div>
       <div class="barra" role="img" aria-label="${x.c} quadrinhos"><i style="width:${(x.c / max) * 100}%"></i></div>
       <div class="rank-qt"><b>${x.c}</b><small>${x.c === 1 ? "quadrinho" : "quadrinhos"}</small></div>
-    </div>`;
+    </div>${aberto ? detalheHtml(x) : ""}`;
   }).join("")}</div>`;
 }
+$("#lista-quadrinhos").addEventListener("click", e => {
+  const d = e.target.closest("[data-det]");
+  if(d){ const id = d.dataset.det; if(qdAbertos.has(id)) qdAbertos.delete(id); else qdAbertos.add(id); renderQuadrinhos(); return; }
+  const es = e.target.closest("[data-esc]");
+  if(es) abrirPublicada(es.dataset.esc);
+});
 $("#qd-csv").addEventListener("click", async () => {
   if(!qdLista.length){ toast("Não há quadrinhos para exportar com esses filtros."); return; }
   const q = s => `"${String(s).replace(/"/g, '""')}"`;
-  const at = $("#qd-atividade").value || "Todas as atividades";
-  const linhas = [["Posição","Militar","Setor","Atividade","Quadrinhos","Último serviço"].map(q).join(";")];
-  qdLista.forEach(x => linhas.push([x.pos + "º", nomeGrad(x.p), (setorPorId(x.p.setorId) || {}).nome || "", at, x.c, x.ult ? br(x.ult) : ""].map(q).join(";")));
+  const linhas = [["Posição","Militar","Setor","Quadrinhos","Dos quais lastro","Faltas","Último serviço"].map(q).join(";")];
+  qdLista.forEach(x => linhas.push([x.pos + "º", nomeGrad(x.p), (setorPorId(x.p.setorId) || {}).nome || "", x.c, x.l || 0, x.f || 0, x.ult ? br(x.ult) : ""].map(q).join(";")));
   const csv = "\uFEFF" + linhas.join("\r\n");
-  const arq = ("quadrinhos-" + at).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w-]+/g, "-").replace(/-+/g, "-").replace(/-$/, "").toLowerCase() + ".csv";
-  await salvarArquivo(arq, csv, "text/csv;charset=utf-8");
+  await salvarArquivo(`quadrinhos-${hoje()}.csv`, csv, "text/csv;charset=utf-8");
 });
 
 /* ---------- arquivos e backup ---------- */
@@ -1447,7 +1808,7 @@ function renderBackupInfo(){
 $("#bk-exportar").addEventListener("click", async () => {
   const agora = new Date();
   const pacote = { app: "escalas-pa", versao: 1, exportadoEm: agora.toISOString(),
-    dados: { setores: S.setores, pessoas: S.pessoas, indisp: S.indisp, escalas: S.escalas, priorizar: !!S.priorizar } };
+    dados: { setores: S.setores, pessoas: S.pessoas, indisp: S.indisp, escalas: S.escalas, lastros: S.lastros || [], priorizar: !!S.priorizar } };
   const ok = await salvarArquivo(`backup-escalas-pa-${iso(agora)}.json`, JSON.stringify(pacote, null, 1), "application/json");
   if(ok){ try{ localStorage.setItem(BK_KEY, agora.toISOString()); }catch(e){} renderBackupInfo(); toast("Backup exportado. Guarde o arquivo num local seguro."); }
 });
@@ -1468,11 +1829,11 @@ $("#bk-arquivo").addEventListener("change", async e => {
     `Os dados atuais (${S.pessoas.length} militares, ${S.escalas.length} escalas) serão substituídos pelos do arquivo (${d.pessoas.length} militares, ${(d.escalas || []).length} escalas${quando}). Se ainda não fez, exporte um backup dos dados atuais antes.`, "Substituir dados");
   if(!ok) return;
   const antigas = S.escalas.map(x => x.id);
-  S = { setores: clone(d.setores), pessoas: clone(d.pessoas), indisp: clone(d.indisp || []), escalas: clone(d.escalas || []), priorizar: !!d.priorizar };
+  S = { setores: clone(d.setores), pessoas: clone(d.pessoas), indisp: clone(d.indisp || []), escalas: clone(d.escalas || []), lastros: clone(d.lastros || []), priorizar: !!d.priorizar };
   rascunho = null;
   salvarLocal(); renderTudo();
   if(db){
-    escreverCadastro(); escreverIndisp();
+    escreverCadastro(); escreverIndisp(); escreverLastros();
     try{
       for(const x of S.escalas) await db.collection("escalas").doc(x.id).set(clone(x));
       for(const id of antigas) if(!S.escalas.some(x => x.id === id)) await db.doc("escalas/" + id).delete();
@@ -1486,6 +1847,63 @@ if(LOCAL || !(window.claude && typeof window.claude.use === "function")){
   try{ navigator.storage && navigator.storage.persist && navigator.storage.persist(); }catch(e){}
 }
 
+/* ---------- LASTROS ---------- */
+function abrirLastros(){
+  if(somenteLeitura){ toast("Você só tem acesso de leitura nesta página."); return; }
+  const sel = $("#ls-mil"), v = sel.value;
+  sel.innerHTML = `<option value="">Selecione</option>` + S.setores.slice().sort((a,b) => a.nome.localeCompare(b.nome, "pt-BR")).map(s => {
+    const ps = S.pessoas.filter(p => p.setorId === s.id).sort(cmpNome);
+    return ps.length ? `<optgroup label="${esc(s.nome)}">${ps.map(p => `<option value="${p.id}">${esc(nomeGrad(p))}${p.ativo === false ? " (inativo)" : ""}</option>`).join("")}</optgroup>` : "";
+  }).join("");
+  if(v && pessoaPorId(v)) sel.value = v;
+  if(!$("#ls-data").value) $("#ls-data").value = hoje();
+  infoLastro(); renderListaLastros();
+  navegar("lastros");
+}
+function infoLastro(){
+  const pid = $("#ls-mil").value, el = $("#ls-info");
+  if(!pid){ el.innerHTML = ""; return; }
+  let esc_ = 0; S.escalas.forEach(e => servicosDe(e, id => { if(id === pid) esc_++; }));
+  const las = (S.lastros || []).filter(l => l.pessoaId === pid).reduce((n, l) => n + l.qtd, 0);
+  const add = Math.max(0, parseInt($("#ls-qtd").value, 10) || 0);
+  el.innerHTML = `<span>Hoje: <b>${esc_ + las}</b> quadrinho(s), sendo ${esc_} de escalas e ${las} de lastros.</span>${add ? `<span>Com este lançamento: <b>${esc_ + las + add}</b>.</span>` : ""}`;
+}
+["#ls-mil","#ls-qtd"].forEach(id => $(id).addEventListener("input", infoLastro));
+$("#ls-mil").addEventListener("change", infoLastro);
+$("#qd-lastro").addEventListener("click", abrirLastros);
+$("#ls-voltar").addEventListener("click", () => navegar("quadrinhos"));
+$("#ls-cancelar").addEventListener("click", () => navegar("quadrinhos"));
+$("#ls-salvar").addEventListener("click", () => {
+  if(somenteLeitura){ toast("Você só tem acesso de leitura nesta página."); return; }
+  const pid = $("#ls-mil").value, qtd = parseInt($("#ls-qtd").value, 10), just = $("#ls-just").value.trim();
+  const data = $("#ls-data").value || hoje(), atividade = "";
+  if(!pid){ toast("Selecione o militar."); return; }
+  if(!qtd || qtd < 1 || qtd > 999){ $("#ls-qtd").focus(); toast("Informe uma quantidade entre 1 e 999."); return; }
+  if(!just){ $("#ls-just").focus(); toast("Escreva a justificativa do lastro."); return; }
+  S.lastros = S.lastros || [];
+  S.lastros.push({ id: uid(), pessoaId: pid, qtd, atividade, data, justificativa: just, em: new Date().toISOString() });
+  salvarLastros(); renderTudo();
+  $("#ls-just").value = ""; $("#ls-qtd").value = "1"; infoLastro();
+  toast(`${qtd} quadrinho${qtd === 1 ? "" : "s"} de lastro lançado${qtd === 1 ? "" : "s"} para ${nomeCurto(pid)}.`);
+});
+function renderListaLastros(){
+  const el = $("#lista-lastros");
+  const lista = (S.lastros || []).filter(l => pessoaPorId(l.pessoaId)).sort((a,b) => b.em.localeCompare(a.em));
+  if(!lista.length){ el.innerHTML = `<div class="vazio">Nenhum lastro lançado ainda.</div>`; return; }
+  el.innerHTML = `<div class="painel">${lista.map(l => `<div class="registro">
+      <div><span class="reg-tipo">+${l.qtd}</span><b>${esc(nomeCurto(l.pessoaId))}</b> referência ${br(l.data)}
+        <small>Justificativa: ${esc(l.justificativa)}</small><small>Lançado em ${br(l.em.slice(0,10))}.</small></div>
+      <button class="btn peq perigo" data-id="${l.id}">Excluir</button>
+    </div>`).join("")}</div>`;
+}
+$("#lista-lastros").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-id]"); if(!b) return;
+  const l = (S.lastros || []).find(x => x.id === b.dataset.id); if(!l) return;
+  if(!(await confirmar("Excluir lastro", `Os ${l.qtd} quadrinho(s) de lastro de ${nomeCurto(l.pessoaId)} deixarão de contar.`, "Excluir"))) return;
+  S.lastros = S.lastros.filter(x => x.id !== l.id);
+  salvarLastros(); renderTudo(); infoLastro(); toast("Lastro excluído.");
+});
+
 /* ---------- render geral ---------- */
 function renderTudo(){
   reindexar();
@@ -1494,7 +1912,7 @@ function renderTudo(){
   $("#n-militares").textContent = ativos().length || "";
   $("#n-indisp").textContent = S.indisp.filter(i => i.fim >= h).length || "";
   $("#n-publicadas").textContent = S.escalas.length || "";
-  renderSetores(); renderMilitares(); renderIndisp(); renderSetoresGerar(); renderPublicadas(); renderQuadrinhos(); renderBackupInfo();
+  renderSetores(); renderMilitares(); renderIndisp(); renderSetoresGerar(); renderPublicadas(); renderQuadrinhos(); renderBackupInfo(); renderListaLastros();
   if(rascunho && rascunho.salvo && !rascunho.alterado){
     const atual = S.escalas.find(e => e.id === rascunho.id);
     if(atual) Object.assign(rascunho, clone(atual)); else rascunho = null;
